@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLM Cost Calculator - Compare AI Model Pricing</title>
+  <meta name="description" content="Calculate and compare costs across GPT-4o, Claude 3.5 Sonnet, Gemini Pro and other LLM models.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>💰 LLM Cost Calculator</h1>
+    <p class="subtitle">Enter your token usage, compare costs across all major models.</p>
+
+    <div class="inputs">
+      <div class="input-group">
+        <label for="input-tokens">Input tokens per request</label>
+        <input type="number" id="input-tokens" value="1000" min="0" step="100">
+      </div>
+      <div class="input-group">
+        <label for="output-tokens">Output tokens per request</label>
+        <input type="number" id="output-tokens" value="500" min="0" step="100">
+      </div>
+      <div class="input-group">
+        <label for="requests">Requests per month</label>
+        <input type="number" id="requests" value="1000" min="0" step="100">
+      </div>
+    </div>
+
+    <table id="results">
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>Provider</th>
+          <th class="sortable" data-sort="input">Input $/1M</th>
+          <th class="sortable" data-sort="output">Output $/1M</th>
+          <th class="sortable" data-sort="per-request">Per Request</th>
+          <th class="sortable active" data-sort="monthly">Monthly Cost</th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+
+    <p class="note">Prices as of early 2025. Actual costs may vary with caching, batching, and volume discounts.</p>
+    <p class="credit">Built by <a href="https://www.handonweb.com">Hand On Web</a> — AI automation for businesses</p>
+  </div>
+
+  <script>
+    const models = [
+      { name: "GPT-4o", provider: "OpenAI", input: 2.50, output: 10.00 },
+      { name: "GPT-4o mini", provider: "OpenAI", input: 0.15, output: 0.60 },
+      { name: "GPT-4 Turbo", provider: "OpenAI", input: 10.00, output: 30.00 },
+      { name: "o1", provider: "OpenAI", input: 15.00, output: 60.00 },
+      { name: "o1-mini", provider: "OpenAI", input: 3.00, output: 12.00 },
+      { name: "Claude 3.5 Sonnet", provider: "Anthropic", input: 3.00, output: 15.00 },
+      { name: "Claude 3 Haiku", provider: "Anthropic", input: 0.25, output: 1.25 },
+      { name: "Claude 3 Opus", provider: "Anthropic", input: 15.00, output: 75.00 },
+      { name: "Gemini 1.5 Pro", provider: "Google", input: 1.25, output: 5.00 },
+      { name: "Gemini 1.5 Flash", provider: "Google", input: 0.075, output: 0.30 },
+      { name: "Gemini 2.0 Flash", provider: "Google", input: 0.10, output: 0.40 },
+      { name: "Llama 3.1 405B", provider: "Meta (via API)", input: 3.00, output: 3.00 },
+      { name: "Llama 3.1 70B", provider: "Meta (via API)", input: 0.60, output: 0.60 },
+      { name: "Mistral Large", provider: "Mistral", input: 2.00, output: 6.00 },
+      { name: "DeepSeek V3", provider: "DeepSeek", input: 0.27, output: 1.10 },
+    ];
+
+    let sortField = 'monthly';
+    let sortAsc = true;
+
+    function calculate() {
+      const inputTokens = parseInt(document.getElementById('input-tokens').value) || 0;
+      const outputTokens = parseInt(document.getElementById('output-tokens').value) || 0;
+      const requests = parseInt(document.getElementById('requests').value) || 0;
+
+      const data = models.map(m => {
+        const perRequest = (inputTokens * m.input / 1000000) + (outputTokens * m.output / 1000000);
+        const monthly = perRequest * requests;
+        return { ...m, perRequest, monthly };
+      });
+
+      // Sort
+      data.sort((a, b) => {
+        let va, vb;
+        switch(sortField) {
+          case 'input': va = a.input; vb = b.input; break;
+          case 'output': va = a.output; vb = b.output; break;
+          case 'per-request': va = a.perRequest; vb = b.perRequest; break;
+          default: va = a.monthly; vb = b.monthly;
+        }
+        return sortAsc ? va - vb : vb - va;
+      });
+
+      const tbody = document.getElementById('table-body');
+      tbody.innerHTML = data.map((m, i) => {
+        const rowClass = i === 0 ? 'cheapest' : '';
+        return `<tr class="${rowClass}">
+          <td class="model-name">${m.name}</td>
+          <td class="provider">${m.provider}</td>
+          <td>$${m.input.toFixed(2)}</td>
+          <td>$${m.output.toFixed(2)}</td>
+          <td>$${m.perRequest < 0.01 ? m.perRequest.toFixed(6) : m.perRequest.toFixed(4)}</td>
+          <td class="monthly">$${m.monthly < 1 ? m.monthly.toFixed(4) : m.monthly.toFixed(2)}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    // Sort handlers
+    document.querySelectorAll('.sortable').forEach(th => {
+      th.addEventListener('click', () => {
+        const field = th.dataset.sort;
+        if (sortField === field) { sortAsc = !sortAsc; }
+        else { sortField = field; sortAsc = true; }
+        document.querySelectorAll('.sortable').forEach(t => t.classList.remove('active'));
+        th.classList.add('active');
+        calculate();
+      });
+    });
+
+    // Recalculate on input change
+    document.querySelectorAll('input').forEach(el => el.addEventListener('input', calculate));
+
+    calculate();
+  </script>
+</body>
+</html>
