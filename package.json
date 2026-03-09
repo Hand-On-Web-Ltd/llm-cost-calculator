@@ -1,14 +1,17 @@
 {
-  "name": "llm-cost-calculator",
-  "version": "1.0.0",
-  "description": "Compare costs across GPT-4o, Claude, Gemini and other LLM models",
-  "main": "index.html",
+  "name": "handonweb-llm-costs",
+  "version": "1.1.0",
+  "description": "Calculate and compare costs across GPT-4o, Claude, Gemini and other LLM models. Prices per 1M tokens.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node -e \"const x = require('./index.js'); console.log(x)\""
+  },
+  "keywords": ["llm", "openai", "anthropic", "google", "cost-calculator", "ai", "pricing", "handonweb"],
+  "author": "Hand On Web Ltd <outreach@handonweb.com> (https://www.handonweb.com)",
+  "license": "MIT",
   "homepage": "https://www.handonweb.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Hand-On-Web-Ltd/llm-cost-calculator"
-  },
-  "keywords": ["llm", "openai", "anthropic", "google", "cost-calculator", "ai", "pricing"],
-  "author": "Hand On Web Ltd <outreach@handonweb.com> (https://www.handonweb.com)",
-  "license": "MIT"
+    "url": "https://github.com/Hand-On-Web-Ltd/llm-cost-calculator.git"
+  }
 }
